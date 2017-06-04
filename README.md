@@ -38,10 +38,10 @@ the **FSND-Virtual-Machine**
 5. Load the data from the **newsdata.sql** using: *psql -d news -f newsdata.sql*
 6. After data has been loaded, explore and interact with the database using *psql news*
 6. **Create a view in the database** before running the app using this query:
-  -create view popular as select articles.title,
+  - *create view popular as select articles.title,
   count(log.path) as views from articles join log
   on log.path like '%'||articles.slug group by
-  articles.title order by views desc;
+  articles.title order by views desc;*
 7. Run the app using: *python newsdb.py*
 8. The results should be printed
 9. If correct, the results should match the view shown in the **sample_output.rtf** file from this repository
