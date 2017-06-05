@@ -4,17 +4,16 @@ import psycopg2
 import datetime
 
 
-def connect_to_db():
+def run_db(query):
     db = psycopg2.connect(database="news")
     c = db.cursor()
-    return db, c
+    c.execute(query)
+    return c.fetchall(), db
 
 
 def show_top_articles():
-    db, c = connect_to_db()
     query = """select * from popular order by views desc limit 3;"""
-    c.execute(query)
-    results = c.fetchall()
+    results, db = run_db(query)
     for result in results:
         article = '"' + result[0].title() + '"'
         views = str(result[1])
@@ -23,14 +22,12 @@ def show_top_articles():
 
 
 def show_top_authors():
-    db, c = connect_to_db()
     query = """select authors.name, sum(popular.views) as views from articles
             join authors on articles.author = authors.id join popular on
             articles.title = popular.title group by authors.name order by
             views desc
             """
-    c.execute(query)
-    results = c.fetchall()
+    results, db = run_db(query)
     for result in results:
         author = result[0]
         views = str(result[1])
@@ -39,14 +36,12 @@ def show_top_authors():
 
 
 def show_error():
-    db, c = connect_to_db()
     query = """select time::date as date, ( (sum(case when status =
             '404 NOT FOUND' then 1 else 0 end) * 100.0) / count(*) ) as error
             from log group by date having ( (sum(case when status =
             '404 NOT FOUND' then 1 else 0 end) * 100.0) / count(*) ) > 1;
             """
-    c.execute(query)
-    results = c.fetchall()
+    results, db = run_db(query)
     for result in results:
         date = result[0]
         error_percent = str(round(result[1], 1)) + '%'
